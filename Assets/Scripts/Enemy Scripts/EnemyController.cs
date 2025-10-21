@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    [Header("Stats")]
+    [Header("Information")]
     public EnemyStats stats;
     public int currentWave = 1;
     private float currentHP;

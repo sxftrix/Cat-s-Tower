@@ -1362,7 +1362,7 @@ GameObject:
   - component: {fileID: 1291697970}
   - component: {fileID: 1291697969}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Menu UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2011,6 +2011,9 @@ MonoBehaviour:
   trashTankPrefab: {fileID: 3959927029139764482, guid: d1fcde0e2a391c1419f19288fd0067f3, type: 3}
   kingRatPrefab: {fileID: 6393733705262189265, guid: ec20428ab246a6b4fbf7511accac88a4, type: 3}
   currentWave: 1
+  spawnPoint: {fileID: 0}
+  minSpawnDelay: 0.5
+  maxSpawnDelay: 1.5
 --- !u!4 &1813819676
 Transform:
   m_ObjectHideFlags: 0
