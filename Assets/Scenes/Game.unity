@@ -96,7 +96,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 90d60cf6eb413ab438a6bf91e7939d36, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -1417,8 +1417,8 @@ Canvas:
   m_GameObject: {fileID: 1291697968}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 754054256}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -1976,6 +1976,56 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1632993778}
   m_CullTransparentMesh: 1
+--- !u!1 &1813819674
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1813819676}
+  - component: {fileID: 1813819675}
+  m_Layer: 0
+  m_Name: EnemySpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1813819675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1813819674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efd64f6485766e94aa66d52e54b91093, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyDB: {fileID: 11400000, guid: cc1f1cf993954344196d446eebff85be, type: 2}
+  streetRatPrefab: {fileID: 3141514344476618644, guid: 9b55c7e2bd8f40b44b3fcb664bc79d5e, type: 3}
+  sewerRunnerPrefab: {fileID: 5496906040635623025, guid: 757eec72c9563b24188773c53c301105, type: 3}
+  trashTankPrefab: {fileID: 3959927029139764482, guid: d1fcde0e2a391c1419f19288fd0067f3, type: 3}
+  kingRatPrefab: {fileID: 6393733705262189265, guid: ec20428ab246a6b4fbf7511accac88a4, type: 3}
+  currentWave: 1
+--- !u!4 &1813819676
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1813819674}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1850806315
 GameObject:
   m_ObjectHideFlags: 0
@@ -2133,7 +2183,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -314, y: 134}
+  m_AnchoredPosition: {x: -370, y: 165}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1971419812
@@ -2253,7 +2303,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -353, y: 134}
+  m_AnchoredPosition: {x: -410, y: 165}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2019915057
@@ -2464,5 +2514,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 754054257}
   - {fileID: 1464968794}
+  - {fileID: 1813819676}
   - {fileID: 1291697972}
   - {fileID: 505817023}
