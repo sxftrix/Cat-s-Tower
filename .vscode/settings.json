@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "cat's tower.sln"
+    "dotnet.defaultSolution": "Cat-s-Tower.sln"
 }
