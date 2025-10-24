@@ -14,9 +14,6 @@ public class ShopManager : MonoBehaviour
     public Button tower2Button;
     public Button tower3Button;
 
-    [Header("Player Data")]
-    public int playerGold = 100;
-
     void Start()
     {
         // Assign upgrade actions to buttons
