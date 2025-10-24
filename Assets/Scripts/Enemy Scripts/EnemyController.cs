@@ -1,38 +1,47 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
     [Header("Information")]
     public EnemyStats stats;
     public int currentWave = 1;
-    private float currentHP;
     private int goldReward;
 
+    private EnemyHealth health;
     private EnemyMovement movement;
+    private bool isDead = false;
+
+    public static event System.Action<EnemyController> OnEnemyKilled;
 
     void Start()
     {
-        // Initialize from the EnemyStats data
-        currentHP = stats.GetHP(currentWave);
-        goldReward = stats.GetGoldReward(currentWave);
+        health = GetComponent<EnemyHealth>();
         movement = GetComponent<EnemyMovement>();
 
-        Debug.Log($"{stats.enemyName} spawned! HP: {currentHP}, Gold: {goldReward}");
+        if (stats != null)
+            goldReward = stats.GetGoldReward(currentWave);
     }
 
     public void TakeDamage(float amount)
     {
-        currentHP -= amount;
-        if (currentHP <= 0)
-            Die();
+        health?.TakeDamage(amount);
     }
 
-    private void Die()
+    public void OnDeath()
     {
-        // TODO: Add gold to player wallet
-        Debug.Log($"{stats.enemyName} defeated! +{goldReward} gold");
+        if (isDead) return;
+        isDead = true;
 
-        // Optional: play death animation before destroy
-        Destroy(gameObject);
+        // Reward player
+        PlayerManager.Instance?.AddGold(goldReward);
+
+        // Stop movement & play death animation
+        movement?.Die();
+
+        // Notify GameController
+        OnEnemyKilled?.Invoke(this);
+
+        // Destroy after delay
+        Destroy(gameObject, 2f);
     }
 }

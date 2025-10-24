@@ -4,18 +4,14 @@ using System.Collections;
 
 public class EnemyHealth : MonoBehaviour
 {
-    //[HideInInspector] 
-    //public PlayerController ownerPlayer;
-
     [Header("Data")]
     public EnemyDatabase enemyDatabase;
     public string enemyType; // e.g. "Street Rat", "Sewer Runner"
     public int currentWave = 1;
+    public EnemyStats stats;
 
-    private EnemyStats stats;
     private float currentHP;
     private float maxHP;
-    //private int goldReward;
 
     [Header("UI")]
     public GameObject hpBarPrefab;
@@ -31,54 +27,19 @@ public class EnemyHealth : MonoBehaviour
 
     private Animator anim;
     private bool isDead = false;
+    private EnemyController controller; // reference to notify
+    private Coroutine slowRoutine;
 
     void Start()
     {
+        controller = GetComponent<EnemyController>();
         anim = GetComponent<Animator>();
 
         LoadStatsFromDatabase();
-        currentHP = maxHP;
+        Initialize(maxHP);
 
-        if (hpBarPrefab != null)
-        {
-            // Instantiate parented to enemy
-            GameObject bar = Instantiate(hpBarPrefab, transform);
-            hpCanvas = bar.transform;
+        SetupHPBar();
 
-            // Assign camera for World Space Canvas
-            Canvas canvasComp = hpCanvas.GetComponent<Canvas>();
-            if (canvasComp != null)
-            {
-                canvasComp.worldCamera = Camera.main;
-                canvasComp.planeDistance = 0.1f;
-            }
-
-            // Keep rotation upright
-            hpCanvas.localRotation = Quaternion.identity;
-
-            // Scale compensation to keep fixed world size
-            hpCanvas.localScale = new Vector3(
-                0.04f / transform.localScale.x,
-                0.04f / transform.localScale.y,
-                0.04f / transform.localScale.z
-            );
-
-            // Position above sprite using bounds
-            SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>();
-            if (sr != null)
-            {
-                hpCanvas.localPosition = new Vector3(
-                    0f,
-                    (sr.bounds.size.y / transform.localScale.y) + 0.04f,
-                    0f
-                );
-            }
-
-            // Get fill image for updates
-            hpBarFill = hpCanvas.Find("HPBarFill").GetComponent<Image>();
-        }
-
-        // Renderer setup for hit flash
         if (enemyRenderer == null)
             enemyRenderer = GetComponentInChildren<Renderer>();
 
@@ -89,21 +50,27 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    void Update()
+    private void SetupHPBar()
     {
-        if (hpCanvas != null)
+        if (hpBarPrefab != null)
         {
-            // Keep HP bar upright
-            hpCanvas.localRotation = Quaternion.identity;
+            GameObject bar = Instantiate(hpBarPrefab, transform);
+            hpCanvas = bar.transform;
 
-            // Maintain fixed scale if enemy scales dynamically
+            Canvas canvasComp = hpCanvas.GetComponent<Canvas>();
+            if (canvasComp != null)
+            {
+                canvasComp.worldCamera = Camera.main;
+                canvasComp.planeDistance = 0.1f;
+            }
+
+            hpCanvas.localRotation = Quaternion.identity;
             hpCanvas.localScale = new Vector3(
                 0.04f / transform.localScale.x,
                 0.04f / transform.localScale.y,
                 0.04f / transform.localScale.z
             );
 
-            // Reposition above sprite in case enemy moves
             SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>();
             if (sr != null)
             {
@@ -113,6 +80,41 @@ public class EnemyHealth : MonoBehaviour
                     0f
                 );
             }
+
+            Transform fillTransform = hpCanvas.Find("HPBarFill");
+            if (fillTransform == null)
+                fillTransform = hpCanvas.Find("HPBar/HPBarFill");
+
+            if (fillTransform != null)
+            {
+                hpBarFill = fillTransform.GetComponent<Image>();
+                Debug.Log($"HP bar fill found for {name}: {hpBarFill.name}");
+            }
+            else
+            {
+                Debug.LogError($"HPBarFill not found under {hpCanvas.name}! Check prefab path.");
+            }
+
+            // Force sorting
+            Canvas hpCanvasComp = hpCanvas.GetComponent<Canvas>();
+            if (hpCanvasComp != null)
+            {
+                hpCanvasComp.overrideSorting = true;
+                hpCanvasComp.sortingOrder = 3;
+            }
+        }
+    }
+
+    void Update()
+    {
+        if (hpCanvas != null)
+        {
+            hpCanvas.localRotation = Quaternion.identity;
+            hpCanvas.localScale = new Vector3(
+                0.04f / transform.localScale.x,
+                0.04f / transform.localScale.y,
+                0.04f / transform.localScale.z
+            );
         }
     }
 
@@ -124,32 +126,26 @@ public class EnemyHealth : MonoBehaviour
             return;
         }
 
-        // Match enemy type from database
         switch (enemyType)
         {
-            case "Street Rat":
-                stats = enemyDatabase.streetRat;
-                break;
-            case "Sewer Runner":
-                stats = enemyDatabase.sewerRunner;
-                break;
-            case "Trash Tank":
-                stats = enemyDatabase.trashTank;
-                break;
-            case "King Rat":
-                stats = enemyDatabase.kingRat;
-                break;
+            case "Street Rat": stats = enemyDatabase.streetRat; break;
+            case "Sewer Runner": stats = enemyDatabase.sewerRunner; break;
+            case "Trash Tank": stats = enemyDatabase.trashTank; break;
+            case "King Rat": stats = enemyDatabase.kingRat; break;
             default:
                 Debug.LogWarning($"Unknown enemy type: {enemyType}");
                 stats = enemyDatabase.streetRat;
                 break;
         }
 
-        // Calculate HP scaling
-        maxHP = stats.baseHP + stats.hpGrowthPerWave * (currentWave - 1);
+        maxHP = stats.GetHP(currentWave);
+    }
 
-        // ✅ Gold scaling formula
-        //goldReward = Mathf.RoundToInt((maxHP / 4f) * (1f + 0.05f * (currentWave - 1)));
+    public void Initialize(float hp)
+    {
+        maxHP = hp;
+        currentHP = hp;
+        UpdateHPBar();
     }
 
     public void TakeDamage(float amount)
@@ -160,8 +156,31 @@ public class EnemyHealth : MonoBehaviour
         UpdateHPBar();
         StartCoroutine(FlashOnHit());
 
+        Debug.Log($"{enemyType} took {amount} damage. HP: {currentHP}/{maxHP}");
+
         if (currentHP <= 0)
             Die();
+    }
+
+    public void ApplySlow(float percent, float duration)
+    {
+        if (slowRoutine != null)
+            StopCoroutine(slowRoutine);
+
+        slowRoutine = StartCoroutine(SlowEffect(percent, duration));
+    }
+
+    private IEnumerator SlowEffect(float percent, float duration)
+    {
+        EnemyMovement move = GetComponent<EnemyMovement>();
+        if (move == null) yield break;
+
+        float newMultiplier = 1f - percent;
+        move.speedMultiplier = newMultiplier;
+
+        yield return new WaitForSeconds(duration);
+
+        move.speedMultiplier = 1f; // reset
     }
 
     void UpdateHPBar()
@@ -173,38 +192,40 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    IEnumerator FlashOnHit()
+    private IEnumerator LerpHP()
+    {
+        float start = hpBarFill.fillAmount;
+        float target = Mathf.Clamp01(currentHP / maxHP);
+        float t = 0f;
+
+        while (t < 0.2f)
+        {
+            t += Time.deltaTime;
+            hpBarFill.fillAmount = Mathf.Lerp(start, target, t / 0.2f);
+            yield return null;
+        }
+
+        hpBarFill.fillAmount = target;
+    }
+
+    private IEnumerator FlashOnHit()
     {
         if (enemyRenderer != null)
         {
-            float elapsed = 0f;
-            while (elapsed < flashDuration)
-            {
-                elapsed += Time.deltaTime;
-                float t = elapsed / flashDuration;
-                enemyRenderer.material.color = Color.Lerp(hitColor, originalColor, t);
-                yield return null;
-            }
+            enemyRenderer.material.color = hitColor;
+            yield return new WaitForSeconds(flashDuration);
             enemyRenderer.material.color = originalColor;
         }
     }
 
     void Die()
     {
+        if (isDead) return;
         isDead = true;
+
         if (anim != null)
             anim.SetBool("isDead", true);
 
-        // Reward player
-        /*if (ownerPlayer != null)
-        {
-            ownerPlayer.AddGold(goldReward);
-        }
-        else
-        {
-            Debug.LogWarning($"{enemyType} died but has no ownerPlayer assigned!");
-        } */
-
-        Destroy(gameObject, 1.5f);
+        controller?.OnDeath(); // Pass control
     }
 }
