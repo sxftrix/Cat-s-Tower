@@ -10,7 +10,7 @@ public class SceneManagerScript : MonoBehaviour
     private bool isPaused = false;
     private bool isShopOpen = false;
 
-    // 🟢 Play button from main menu
+    // Play button from main menu
     public void PlayGame()
     {
         GameManager.Instance.LoadSceneWithLoading("Game");
@@ -26,10 +26,10 @@ public class SceneManagerScript : MonoBehaviour
         SceneManager.LoadScene("MainPage");
     }
 
-    // 🟥 Quit works in both editor and build
+    // Quit works in both editor and build
     public void Quit()
     {
-        UnityEditor.EditorApplication.isPlaying = false;
+        // UnityEditor.EditorApplication.isPlaying = false;
 
         Application.Quit();
     }
@@ -44,7 +44,7 @@ public class SceneManagerScript : MonoBehaviour
         GameManager.Instance.LoadSceneWithLoading("MainPage");
     }
 
-    // 🟡 Pause the game (toggle)
+    // Pause the game (toggle)
     public void TogglePause()
     {
         isPaused = !isPaused;
@@ -62,7 +62,7 @@ public class SceneManagerScript : MonoBehaviour
             pauseMenuPanel.SetActive(false);
     }
 
-    // 🟣 SHOP UI
+    // SHOP UI
     public void ToggleShop()
     {
         // Prevent opening shop while paused
